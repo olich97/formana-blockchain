@@ -55,7 +55,6 @@ impl Processor {
         // Form PDA is derived by using seeds: form code and form creator address
         let (form_pda, form_bump) = Pubkey::find_program_address(
             &[
-                b"form".as_ref(),
                 code.as_ref(),
                 authority_account.key.as_ref(),
             ],
@@ -86,7 +85,6 @@ impl Processor {
                 system_program.clone(),
             ],
             &[&[
-                b"form".as_ref(),
                 code.as_ref(),
                 authority_account.key.as_ref(),
                 &[form_bump],
@@ -108,7 +106,7 @@ impl Processor {
         program_id: &Pubkey,
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
-        // aka Form creator account
+        // aka submission creator account
         let authority_account = next_account_info(account_info_iter)?;
         // Account derived PDA for target form
         let form_account = next_account_info(account_info_iter)?;
@@ -128,7 +126,6 @@ impl Processor {
 
         let (submission_pda, submission_bump) = Pubkey::find_program_address(
             &[
-                b"submission".as_ref(),
                 form_account.key.as_ref(),
                 authority_account.key.as_ref(),
             ],
@@ -158,7 +155,6 @@ impl Processor {
                 system_program.clone(),
             ],
             &[&[
-                b"submission".as_ref(),
                 form_account.key.as_ref(),
                 authority_account.key.as_ref(),
                 &[submission_bump],
