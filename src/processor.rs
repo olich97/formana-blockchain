@@ -121,8 +121,6 @@ impl Processor {
 
         let form_data = try_from_slice_unchecked::<Form>(&form_account.data.borrow()).unwrap();
 
-        msg!("Form data: {:?}", form_data);
-
         let (submission_pda, submission_bump) = Pubkey::find_program_address(
             &[
                 authority_account.key.as_ref(),
