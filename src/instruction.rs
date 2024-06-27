@@ -18,8 +18,39 @@ pub enum FormInstruction {
     CreateSubmission { content_url: String },
 }
 
+#[derive(BorshDeserialize)]
+struct CreateFormPayload {
+    code: String,
+    schema_url: String,
+}
+
+#[derive(BorshDeserialize)]
+struct CreateSubmissionPayload {
+    content_url: String,
+}
+
 impl FormInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
-        FormInstruction::try_from_slice(input).map_err(|_| ProgramError::InvalidInstructionData)
+        let (&variant, rest) = input
+            .split_first()
+            .ok_or(ProgramError::InvalidInstructionData)?;
+
+        Ok(match variant {
+            0 => {
+                let payload = CreateFormPayload::try_from_slice(rest).unwrap();
+                Self::CreateForm {
+                    code: payload.code,
+                    schema_url: payload.schema_url,
+                }
+            }
+            1 => {
+                let payload = CreateSubmissionPayload::try_from_slice(rest).unwrap();
+                Self::CreateSubmission {
+                    content_url: payload.content_url,
+                }
+            }
+            _ => return Err(ProgramError::InvalidInstructionData),
+        })
+        //FormInstruction::try_from_slice(input).map_err(|_| ProgramError::InvalidInstructionData)
     }
 }

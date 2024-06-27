@@ -14,3 +14,9 @@ Cargo.lock
 *.pdb
 
 test-ledger
+
+node_modules
+
+examples/wallet.json
+
+yarn-error.log

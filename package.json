@@ -1,0 +1,24 @@
+{
+  "name": "formana-blockchain",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/olich97/formana-blockchain.git",
+  "author": "Oleh Andrushko <olich.me@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "createForm": "ts-node ./examples/createForm.ts",
+    "createSubmission": "ts-node ./examples/createSubmission.ts",
+    "keygen": "ts-node ./examples/keygen.ts",
+    "airdrop": "ts-node ./examples/airdrop.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@project-serum/borsh": "^0.2.5",
+    "@solana/web3.js": "^1.93.2",
+    "borsh": "^2.0.0"
+  }
+}

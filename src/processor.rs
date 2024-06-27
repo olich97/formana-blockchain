@@ -1,8 +1,10 @@
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::BorshSerialize;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
+    borsh1::try_from_slice_unchecked,
     clock::Clock,
     entrypoint::ProgramResult,
+    msg,
     program::invoke_signed,
     program_error::ProgramError,
     pubkey::Pubkey,
@@ -54,10 +56,7 @@ impl Processor {
         }
         // Form PDA is derived by using seeds: form code and form creator address
         let (form_pda, form_bump) = Pubkey::find_program_address(
-            &[
-                code.as_ref(),
-                authority_account.key.as_ref(),
-            ],
+            &[authority_account.key.as_ref(), code.as_ref()],
             program_id,
         );
 
@@ -84,17 +83,13 @@ impl Processor {
                 form_account.clone(),
                 system_program.clone(),
             ],
-            &[&[
-                code.as_ref(),
-                authority_account.key.as_ref(),
-                &[form_bump],
-            ]],
+            &[&[authority_account.key.as_ref(), code.as_ref(), &[form_bump]]],
         )?;
-
-        let mut form_data = Form::try_from_slice(&form_account.data.borrow())?;
+        let mut form_data = try_from_slice_unchecked::<Form>(&form_account.data.borrow()).unwrap();
         form_data.creator = *authority_account.key;
         form_data.schema_url = schema_url;
         form_data.bump = form_bump;
+        form_data.code = code;
 
         form_data.serialize(&mut &mut form_account.data.borrow_mut()[..])?;
         Ok(())
@@ -124,10 +119,15 @@ impl Processor {
             return Err(FormanaError::InvalidFormAccount.into());
         }
 
+        let form_data = try_from_slice_unchecked::<Form>(&form_account.data.borrow()).unwrap();
+
+        msg!("Form data: {:?}", form_data);
+
         let (submission_pda, submission_bump) = Pubkey::find_program_address(
             &[
-                form_account.key.as_ref(),
                 authority_account.key.as_ref(),
+                form_data.code.as_ref(),
+                "submissions".as_ref(),
             ],
             program_id,
         );
@@ -155,14 +155,16 @@ impl Processor {
                 system_program.clone(),
             ],
             &[&[
-                form_account.key.as_ref(),
                 authority_account.key.as_ref(),
+                form_data.code.as_ref(),
+                "submissions".as_ref(),
                 &[submission_bump],
             ]],
         )?;
 
         let clock = Clock::get()?;
-        let mut submission_data = Submission::try_from_slice(&submission_account.data.borrow())?;
+        let mut submission_data =
+            try_from_slice_unchecked::<Submission>(&submission_account.data.borrow()).unwrap();
         submission_data.form = *form_account.key;
         submission_data.author = *authority_account.key;
         submission_data.content_url = content_url;

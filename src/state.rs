@@ -1,7 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Debug, Default)]
 pub struct Form {
     pub creator: Pubkey, // address of creator account (waller the one who sign the tx?)
     pub code: String,    // a unique code for this form
@@ -9,7 +9,7 @@ pub struct Form {
     pub bump: u8,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Debug, Default)]
 pub struct Submission {
     pub form: Pubkey,   // address of form account
     pub author: Pubkey, // address of who submitted the form
