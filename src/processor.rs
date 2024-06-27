@@ -4,7 +4,6 @@ use solana_program::{
     borsh1::try_from_slice_unchecked,
     clock::Clock,
     entrypoint::ProgramResult,
-    msg,
     program::invoke_signed,
     program_error::ProgramError,
     pubkey::Pubkey,
