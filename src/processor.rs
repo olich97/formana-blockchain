@@ -48,6 +48,8 @@ impl Processor {
         let form_account = next_account_info(account_info_iter)?;
         //
         let system_program = next_account_info(account_info_iter)?;
+         // Fee payer account
+         let payer_account = next_account_info(account_info_iter)?; 
 
         // validations
         if !authority_account.is_signer {
@@ -68,7 +70,7 @@ impl Processor {
         let rent_lamports = rent.minimum_balance(form_size);
 
         let create_form_pda_ix = &system_instruction::create_account(
-            authority_account.key,
+            payer_account.key,
             form_account.key,
             rent_lamports,
             form_size.try_into().unwrap(),
@@ -78,7 +80,7 @@ impl Processor {
         invoke_signed(
             create_form_pda_ix,
             &[
-                authority_account.clone(),
+                payer_account.clone(),
                 form_account.clone(),
                 system_program.clone(),
             ],
@@ -106,10 +108,10 @@ impl Processor {
         let form_account = next_account_info(account_info_iter)?;
         // Account derived PDA
         let submission_account = next_account_info(account_info_iter)?;
-        //
         let system_program = next_account_info(account_info_iter)?;
+        // Fee payer account
+        let payer_account = next_account_info(account_info_iter)?; 
 
-        // validations
         if !authority_account.is_signer {
             return Err(ProgramError::MissingRequiredSignature);
         }
@@ -128,6 +130,7 @@ impl Processor {
             ],
             program_id,
         );
+
         if submission_pda != *submission_account.key {
             return Err(FormanaError::InvalidSubmissionAccount.into());
         }
@@ -137,7 +140,7 @@ impl Processor {
         let rent_lamports = rent.minimum_balance(submission_size);
 
         let create_submission_pda_ix = &system_instruction::create_account(
-            authority_account.key,
+            payer_account.key, // Use payer account to pay for the transaction
             submission_account.key,
             rent_lamports,
             submission_size.try_into().unwrap(),
@@ -147,7 +150,7 @@ impl Processor {
         invoke_signed(
             create_submission_pda_ix,
             &[
-                authority_account.clone(),
+                payer_account.clone(),
                 submission_account.clone(),
                 system_program.clone(),
             ],
