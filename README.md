@@ -12,21 +12,29 @@ A rust program for [Formana](https://formana.olich.me/) platform.
 
 ## Getting Started
 
+- Build: 
 ```bash
-# Build the code
 cargo build-bpf
 # or
 yarn build
+```
 
-# Test the code
+- Run tests:
+```bash
 yarn test
+```
 
-# Build and test
-yarn build-and-test
+- Deploy:
+```bash
+solana program deploy ./target/deploy/formana_program.so
+# or
+yarn deploy
+```
 
+- Use with local node:
+```bash
 # Start local node
 solana-test-validator
-
 # Check & set configs
 solana config get
 solana config set --url localhost
@@ -35,9 +43,4 @@ solana-keygen new
 solana config set -k ~/.config/solana/id.json
 solana airdrop 2
 solana balance
-
-# Deploy
-solana program deploy ./target/deploy/formana_program.so
-# or
-yarn deploy
 ```
