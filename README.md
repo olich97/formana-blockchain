@@ -1,6 +1,6 @@
 # Formana Program
 
-A [rust Solana onchain program](https://solana.com/docs/programs/lang-rust) for the [Formana](https://formana.olich.me/) platform. The program handles forms and submissions creation on Solana blockchain using [PDA accounts](https://solana.com/docs/core/pda).
+A [rust Solana](https://solana.com/docs/programs/lang-rust) onchain program for the [Formana](https://formana.olich.me/) platform. The program handles forms and submissions creation on Solana blockchain using [PDA accounts](https://solana.com/docs/core/pda).
 
 ## Prerequisites
 
