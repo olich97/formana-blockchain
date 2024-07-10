@@ -7,8 +7,8 @@ import {
 } from "@solana/web3.js";
 import { start } from "solana-bankrun";
 import * as borsh from "@project-serum/borsh";
-import { describe, test } from "node:test";
-import { assert } from "node:console";
+import { describe, test,  } from "node:test";
+import assert from "node:assert";
 
 const SUBMISSION_ACCOUNT_DATA_LAYOUT = borsh.struct([
   borsh.publicKey("form"),
@@ -58,6 +58,7 @@ describe("Form & Submission", async () => {
     console.log(`Program Address      : ${PROGRAM_ID}`);
     console.log(`Payer Address      : ${payer.publicKey}`);
     console.log(`Form Acct  : ${formAccount.toBase58()}`);
+    console.log(`Form Creator Acct  : ${formCreator.publicKey.toBase58()}`);
 
     const buffer = Buffer.alloc(1000);
     CREATE_FORM_INSTRUCTION_LAYOUT.encode(
@@ -79,7 +80,7 @@ describe("Form & Submission", async () => {
         {
           pubkey: formCreator.publicKey,
           isSigner: true,
-          isWritable: false, // so wrong, need to check later
+          isWritable: false,
         },
         {
           pubkey: formAccount,
@@ -120,9 +121,9 @@ describe("Form & Submission", async () => {
     console.log(`Creator: ${readAccountData.creator}`);
     console.log(`Schem url: ${readAccountData.schema_url}`);
 
-    assert(readAccountData.creator == formCreator.publicKey);
-    assert(readAccountData.schema_url == formSchemaUrl);
-    assert(readAccountData.code == formCode);
+    assert(readAccountData.creator == formCreator.publicKey.toBase58(), "Creator mismatch");
+    assert(readAccountData.schema_url == formSchemaUrl, "Schema url mismatch");
+    assert(readAccountData.code == formCode, "Form code mismatch");
   });
 
   test("Create submission", async () => {
@@ -205,6 +206,10 @@ describe("Form & Submission", async () => {
       ],
       new PublicKey(PROGRAM_ID)
     );
+    const [formAccount] = PublicKey.findProgramAddressSync(
+      [formCreator.publicKey.toBuffer(), Buffer.from(formCode)],
+      new PublicKey(PROGRAM_ID)
+    );
     const submissionAccountData = await client.getAccount(submissionAccount);
     const readAccountData = SUBMISSION_ACCOUNT_DATA_LAYOUT.decode(
       Buffer.from(submissionAccountData?.data)
@@ -213,5 +218,10 @@ describe("Form & Submission", async () => {
     console.log(`Author: ${readAccountData.author}`);
     console.log(`Form: ${readAccountData.form}`);
     console.log(`Timestamp: ${readAccountData.timestamp}`);
+
+    assert(readAccountData.author == submissionAuthor.publicKey.toBase58(),  "Author mismatch");
+    assert(readAccountData.form == formAccount.toBase58(), "Form mismatch");
+    assert(readAccountData.content_url == "https://example.com", "Content url mismatch");
+    assert(readAccountData.timestamp > 0, "Timestamp mismatch");
   });
 });
