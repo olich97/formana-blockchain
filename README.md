@@ -2,16 +2,32 @@
 
 A rust program for [Formana](https://formana.olich.me/) platform.
 
+## Prerequisites
+
+- [Node](https://nodejs.org/en) v22+
+- [Rustup](https://rustup.rs/) v1.22+
+- [Rust](https://www.rust-lang.org/it) v1.79+
+- [Yarn](https://yarnpkg.com/)
+- [Solana Developing Programs](https://solana.com/docs/programs/overview)
+
 ## Getting Started
 
 ```bash
-# 0. Build the code
+# Build the code
 cargo build-bpf
+# or
+yarn build
 
-# 1. Start local node
+# Test the code
+yarn test
+
+# Build and test
+yarn build-and-test
+
+# Start local node
 solana-test-validator
 
-# 2. Check & set configs (optional)
+# Check & set configs
 solana config get
 solana config set --url localhost
 # generate local wallet if needed
@@ -20,7 +36,8 @@ solana config set -k ~/.config/solana/id.json
 solana airdrop 2
 solana balance
 
-# 3. Deploy
+# Deploy
 solana program deploy ./target/deploy/formana_program.so
-
+# or
+yarn deploy
 ```
