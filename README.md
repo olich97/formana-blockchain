@@ -1,6 +1,6 @@
 # Formana Program
 
-A rust program for [Formana](https://formana.olich.me/) platform.
+A [rust Solana onchain program](https://solana.com/docs/programs/lang-rust) for the [Formana](https://formana.olich.me/) platform. The program handles forms and submissions creation on Solana blockchain using [PDA accounts](https://solana.com/docs/core/pda).
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ A rust program for [Formana](https://formana.olich.me/) platform.
 - [Rustup](https://rustup.rs/) v1.22+
 - [Rust](https://www.rust-lang.org/it) v1.79+
 - [Yarn](https://yarnpkg.com/)
-- [Solana Developing Programs](https://solana.com/docs/programs/overview)
+- [Solana Local Environment](https://solana.com/developers/guides/getstarted/setup-local-development)
 
 ## Getting Started
 
