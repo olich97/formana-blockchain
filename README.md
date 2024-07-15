@@ -21,7 +21,7 @@ yarn build
 
 - Run tests:
 ```bash
-yarn test
+yarn build-n-test
 ```
 
 - Deploy:
