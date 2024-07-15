@@ -1,15 +1,6 @@
 use borsh::BorshSerialize;
 use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    borsh1::try_from_slice_unchecked,
-    clock::Clock,
-    entrypoint::ProgramResult,
-    program::invoke_signed,
-    program_error::ProgramError,
-    pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::Sysvar,
+    account_info::{next_account_info, AccountInfo}, borsh1::try_from_slice_unchecked, clock::Clock, entrypoint::ProgramResult, msg, program::invoke_signed, program_error::ProgramError, pubkey::Pubkey, rent::Rent, system_instruction, sysvar::Sysvar
 };
 
 use crate::state::{Form, Submission};
@@ -26,11 +17,11 @@ impl Processor {
         let instruction = FormInstruction::unpack(instruction_data)?;
 
         match instruction {
-            FormInstruction::CreateForm { code, schema_url } => {
-                Self::process_create_form(accounts, code, schema_url, program_id)
+            FormInstruction::CreateForm { code, schema_url , encryption_key} => {
+                Self::process_create_form(accounts, code, schema_url, encryption_key,  program_id)
             }
-            FormInstruction::CreateSubmission { content_url } => {
-                Self::process_create_submission(accounts, content_url, program_id)
+            FormInstruction::CreateSubmission { content_url, symmetric_key } => {
+                Self::process_create_submission(accounts, content_url, symmetric_key, program_id)
             }
         }
     }
@@ -42,6 +33,7 @@ impl Processor {
     /// * `accounts` - The accounts required for the instruction.
     /// * `code` - The code of the form.
     /// * `schema_url` - The URL of the schema.
+    /// * `encryption_key` - Public key used to encrypt submissions
     /// * `program_id` - The ID of the program.
     ///
     /// # Returns
@@ -51,6 +43,7 @@ impl Processor {
         accounts: &[AccountInfo],
         code: String,
         schema_url: String,
+        encryption_key: Vec<u8>,
         program_id: &Pubkey,
     ) -> ProgramResult {
         let account_info_iter = &mut accounts.iter();
@@ -83,7 +76,7 @@ impl Processor {
         }
 
         // Calculate the size of the form account and rent details
-        let form_size = Form::get_account_size(&code, &schema_url);
+        let form_size = Form::get_account_size(&code, &schema_url, &encryption_key);
         let rent = Rent::get()?;
         let rent_lamports = rent.minimum_balance(form_size);
 
@@ -110,6 +103,7 @@ impl Processor {
         // Populate the form data
         form_data.creator = *authority_account.key;
         form_data.schema_url = schema_url;
+        form_data.encryption_key = encryption_key;
         form_data.bump = form_bump;
         form_data.code = code;
 
@@ -124,6 +118,7 @@ impl Processor {
     ///
     /// * `accounts` - The accounts passed to the program.
     /// * `content_url` - The URL of the content being submitted.
+    /// * `symmetric_key` - Encrypted symmetric key used to encrypt submissions
     /// * `program_id` - The ID of the program.
     ///
     /// # Returns
@@ -132,6 +127,7 @@ impl Processor {
     fn process_create_submission(
         accounts: &[AccountInfo],
         content_url: String,
+        symmetric_key: Vec<u8>,
         program_id: &Pubkey,
     ) -> ProgramResult {
         // Get the account iterators
@@ -181,7 +177,7 @@ impl Processor {
         }
 
         // Calculate the size of the submission account and rent details
-        let submission_size = Submission::get_account_size(&content_url);
+        let submission_size = Submission::get_account_size(&content_url, &symmetric_key);
         let rent = Rent::get()?;
         let rent_lamports = rent.minimum_balance(submission_size);
 
@@ -221,6 +217,7 @@ impl Processor {
         submission_data.author = *authority_account.key;
         submission_data.content_url = content_url;
         submission_data.bump = submission_bump;
+        submission_data.symmetric_key = symmetric_key;
         submission_data.timestamp = clock.unix_timestamp as u64;
 
         // Serialize the submission data into the account data
